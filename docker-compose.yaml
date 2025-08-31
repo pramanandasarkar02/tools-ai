@@ -1,5 +1,54 @@
-version: '3.9'
-
 services:
-  hello:
-    image: hello-world
+  user-db:
+    image: postgres:15-alpine  
+    ports:
+      - "5001:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: user-db
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  organization-db:
+    image: postgres:15-alpine
+    ports:
+      - "5002:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: organization-db
+    volumes:
+      - organization-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  feedback-db:
+    image: postgres:15-alpine
+    ports:
+      - "5003:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: feedback-db
+    volumes:
+      - feedback-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  notification-db:
+    image: postgres:15-alpine
+    ports:
+      - "5004:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: notification-db
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  user-db-data:
+  organization-db-data:
+  feedback-db-data:
+  notification-db-data:
