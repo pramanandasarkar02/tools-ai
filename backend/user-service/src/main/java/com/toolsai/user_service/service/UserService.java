@@ -1,4 +1,24 @@
 package com.toolsai.user_service.service;
 
-public class UserService {
+import com.toolsai.user_service.dto.RequestUserDTO;
+import com.toolsai.user_service.dto.ResponseUserDTO;
+
+import java.util.List;
+
+public interface UserService {
+
+
+    ResponseUserDTO createUser(RequestUserDTO requestUserDTO);
+
+    ResponseUserDTO getUserById(String userId);
+
+    ResponseUserDTO updateUser(String userId, RequestUserDTO requestUserDTO);
+
+    List<ResponseUserDTO> getAllUsers(String adminId);
+
+    ResponseUserDTO banUser(String adminId, String userId);
+
+    ResponseUserDTO unBanUser(String adminId, String userId);
+
+    ResponseUserDTO createAdminModerator(String adminId, RequestUserDTO requestUserDTO);
 }
