@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -53,6 +55,22 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException(e);
         }
 
+    }
+    @Override
+    public ResponseUserDTO getUserByUsername(String username) {
+        try{
+            Optional<User> optionalUser = userRepository.findByUsername(username);
+            if (optionalUser.isEmpty()) {
+                throw new RuntimeException("User not found");
+            }
+            User user = optionalUser.get();
+            if (user.isBanned()) {
+                throw new RuntimeException("User is banned");
+            }
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -165,6 +183,8 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+
 
 
     private ResponseUserDTO userToResponseUserDTO(User user) {

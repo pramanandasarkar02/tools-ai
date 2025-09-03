@@ -25,4 +25,6 @@ public interface UserService {
     Boolean isAdmin(String adminId);
 
     Boolean isModerator(String userId);
+
+    ResponseUserDTO getUserByUsername(String username);
 }

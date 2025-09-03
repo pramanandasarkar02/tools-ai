@@ -21,13 +21,18 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationService.createOrganization(organizationRequestDTO, adminId));
     }
 
-    @PutMapping
-    public ResponseEntity<OrganizationResponseDTO> updateOrganization(@RequestBody OrganizationRequestDTO organizationRequestDTO, @RequestHeader("adminId") String adminId) {
-        return ResponseEntity.ok(organizationService.updateOrganization(organizationRequestDTO, adminId));
+    @GetMapping
+    public ResponseEntity<List<OrganizationResponseDTO>> getAllOrganizations() {
+        return ResponseEntity.ok(organizationService.getAllOrganizations());
+    }
+
+    @PutMapping("/{organizationId}")
+    public ResponseEntity<OrganizationResponseDTO> updateOrganization(@RequestBody OrganizationRequestDTO organizationRequestDTO) {
+        return ResponseEntity.ok(organizationService.updateOrganization(organizationRequestDTO));
     }
 
     @DeleteMapping("/{organizationId}")
-    public ResponseEntity<OrganizationResponseDTO> deleteOrganization(@PathVariable  String organizationId, @RequestHeader("adminId") String adminId) {
+    public ResponseEntity<OrganizationResponseDTO> deleteOrganization(@PathVariable  String organizationId, @RequestHeader("adminId") String adminId) throws Exception {
         return ResponseEntity.ok(organizationService.deleteOrganization(organizationId, adminId));
     }
 
@@ -36,9 +41,6 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationService.getOrganizationById(organizationId));
     }
 
-    @GetMapping
-    public ResponseEntity<List<OrganizationResponseDTO>> getAllOrganizations() {
-        return ResponseEntity.ok(organizationService.getAllOrganizations());
-    }
+
 
 }

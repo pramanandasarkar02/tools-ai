@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface OrganizationService {
     OrganizationResponseDTO createOrganization(OrganizationRequestDTO organizationRequestDTO, String adminId);
-    OrganizationResponseDTO updateOrganization(OrganizationRequestDTO organizationRequestDTO, String adminId);
-    OrganizationResponseDTO deleteOrganization(String organizationId, String adminId);
+    OrganizationResponseDTO updateOrganization(OrganizationRequestDTO organizationRequestDTO);
+    OrganizationResponseDTO deleteOrganization(String organizationId, String adminId) throws Exception;
     OrganizationResponseDTO getOrganizationById(String organizationId);
     OrganizationResponseDTO getOrganizationBySlug(String slug);
     List<OrganizationResponseDTO> getAllOrganizations();
