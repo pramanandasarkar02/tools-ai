@@ -51,11 +51,9 @@ public class UserController {
         return ResponseEntity.ok(userService.createAdminModerator(adminId, requestUserDTO));
     }
 
-    @GetMapping("/admin/{adminId}")
-    public ResponseEntity<List<ResponseUserDTO>> getAllUsers(
-            @PathVariable String adminId
-    ) {
-        return ResponseEntity.ok(userService.getAllUsers(adminId));
+    @GetMapping()
+    public ResponseEntity<List<ResponseUserDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PatchMapping("/admin/{adminId}/ban/{userId}")
@@ -72,6 +70,29 @@ public class UserController {
             @PathVariable String userId
     ) {
         return ResponseEntity.ok(userService.unBanUser(adminId, userId));
+    }
+
+    @GetMapping("/admin/{adminId}")
+    public ResponseEntity<Boolean> isAdmin(
+            @PathVariable String adminId
+    ) {
+        try{
+            return ResponseEntity.ok(userService.isAdmin(adminId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(false);
+        }
+
+    }
+
+    @GetMapping("/moderator/{userId}")
+    public ResponseEntity<Boolean> isModerator(
+            @PathVariable String userId
+    ) {
+        try{
+            return ResponseEntity.ok(userService.isModerator( userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(false);
+        }
     }
 
 

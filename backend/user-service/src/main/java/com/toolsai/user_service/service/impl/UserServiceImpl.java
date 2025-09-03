@@ -20,99 +20,169 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseUserDTO createUser(RequestUserDTO requestUserDTO) {
-        User user = new User();
-        user.setUsername(requestUserDTO.getUsername());
-        user.setFirstName(requestUserDTO.getFirstName());
-        user.setLastName(requestUserDTO.getLastName());
-        user.setEmail(requestUserDTO.getEmail());
-        user.setPassword(requestUserDTO.getPassword());
-        user.setBanned(false);
-        user.setRole(Role.USER);
+        try {
+            User user = new User();
+            user.setUsername(requestUserDTO.getUsername());
+            user.setFirstName(requestUserDTO.getFirstName());
+            user.setLastName(requestUserDTO.getLastName());
+            user.setEmail(requestUserDTO.getEmail());
+            user.setPassword(requestUserDTO.getPassword());
+            user.setBanned(false);
+            user.setRole(Role.USER);
 
 
-        user = userRepository.save(user);
+            user = userRepository.save(user);
 
-        log.info("User created successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
+            log.info("User created successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
 
-        return userToResponseUserDTO(user);
+            return userToResponseUserDTO(user);
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public ResponseUserDTO getUserById(String userId) {
-//        don't allow banned users to get their details
-        return userToResponseUserDTO(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+        try{
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            if (user.isBanned()) {
+                throw new RuntimeException("User is banned");
+            }
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public ResponseUserDTO updateUser(String userId, RequestUserDTO requestUserDTO) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setFirstName(requestUserDTO.getFirstName());
-        user.setLastName(requestUserDTO.getLastName());
-        user.setEmail(requestUserDTO.getEmail());
-        user.setPassword(requestUserDTO.getPassword());
-        user.setRole(requestUserDTO.getRole());
-        userRepository.save(user);
+        try{
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setFirstName(requestUserDTO.getFirstName());
+            user.setLastName(requestUserDTO.getLastName());
+            user.setEmail(requestUserDTO.getEmail());
+            user.setPassword(requestUserDTO.getPassword());
+            user.setRole(requestUserDTO.getRole());
+            userRepository.save(user);
 
-        log.info("User updated successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
-        return userToResponseUserDTO(user);
+            log.info("User updated successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
-    public List<ResponseUserDTO> getAllUsers(String adminId) {
-//        check if adminId is valid
-        return userRepository.findAll().stream().map(this::userToResponseUserDTO).toList();
+    public List<ResponseUserDTO> getAllUsers() {
+        try {
+            return userRepository.findAll().stream().map(this::userToResponseUserDTO).toList();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public ResponseUserDTO banUser(String adminId, String userId) {
-//        check if adminId is valid
+        try{
+            if (!isAdmin(adminId)) {
+                throw new RuntimeException("Admin not found");
+            }
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setBanned(true);
+            userRepository.save(user);
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setBanned(true);
-        userRepository.save(user);
-        return userToResponseUserDTO(user);
+
     }
 
     @Override
     public ResponseUserDTO unBanUser(String adminId, String userId) {
-//        check if adminId is valid
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setBanned(false);
-        userRepository.save(user);
-        return userToResponseUserDTO(user);
+
+        if (!isAdmin(adminId)) {
+            throw new RuntimeException("Admin not found");
+        }
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setBanned(false);
+            userRepository.save(user);
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public ResponseUserDTO createAdminModerator(String adminId, RequestUserDTO requestUserDTO) {
-//        check if adminId is valid
-        User user = new User();
-        user.setUsername(requestUserDTO.getUsername());
-        user.setFirstName(requestUserDTO.getFirstName());
-        user.setLastName(requestUserDTO.getLastName());
-        user.setEmail(requestUserDTO.getEmail());
-        user.setPassword(requestUserDTO.getPassword());
-        user.setRole(Role.MODERATOR);
+        if (!isAdmin(adminId)) {
+            throw new RuntimeException("Admin not found");
+        }
+        try {
+            User user = new User();
+            user.setUsername(requestUserDTO.getUsername());
+            user.setFirstName(requestUserDTO.getFirstName());
+            user.setLastName(requestUserDTO.getLastName());
+            user.setEmail(requestUserDTO.getEmail());
+            user.setPassword(requestUserDTO.getPassword());
+            user.setRole(Role.MODERATOR);
 
-        user = userRepository.save(user);
+            user = userRepository.save(user);
 
-        log.info("Moderator created successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
+            log.info("Moderator created successfully with (username: " + user.getUsername() + ", id: " + user.getId() + ")");
 
-        return userToResponseUserDTO(user);
+            return userToResponseUserDTO(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+    @Override
+    public Boolean isAdmin(String adminId) {
+        try{
+            User user = userRepository.findById(adminId).orElseThrow(() -> new RuntimeException("User not found"));
+            return user.getRole() == Role.ADMIN;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public Boolean isModerator(String userId) {
+        try{
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            return user.getRole() == Role.MODERATOR;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
 
-
-
     private ResponseUserDTO userToResponseUserDTO(User user) {
-        ResponseUserDTO responseUserDTO = new ResponseUserDTO();
-        responseUserDTO.setId(user.getId());
-        responseUserDTO.setUsername(user.getUsername());
-        responseUserDTO.setFirstName(user.getFirstName());
-        responseUserDTO.setLastName(user.getLastName());
-        responseUserDTO.setEmail(user.getEmail());
-        responseUserDTO.setRole(user.getRole());
-        responseUserDTO.setBanned(user.isBanned());
-        return responseUserDTO;
+        try{
+            ResponseUserDTO responseUserDTO = new ResponseUserDTO();
+            responseUserDTO.setId(user.getId());
+            responseUserDTO.setUsername(user.getUsername());
+            responseUserDTO.setFirstName(user.getFirstName());
+            responseUserDTO.setLastName(user.getLastName());
+            responseUserDTO.setEmail(user.getEmail());
+            responseUserDTO.setRole(user.getRole());
+            responseUserDTO.setBanned(user.isBanned());
+            responseUserDTO.setCreatedAt(user.getCreatedAt());
+            responseUserDTO.setUpdatedAt(user.getUpdatedAt());
+            return responseUserDTO;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
